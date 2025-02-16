@@ -3,18 +3,12 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from openai import OpenAI
+import requests
 
-# 環境変数からLINEアクセストークン、シークレット、OpenAI APIキーを取得
+# 環境変数からLINEアクセストークンとシークレットを取得
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
 LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
-print(f"LINE_CHANNEL_ACCESS_TOKEN: {LINE_CHANNEL_ACCESS_TOKEN}")
-print(f"LINE_CHANNEL_SECRET: {LINE_CHANNEL_SECRET}")
-print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')  # OpenRouter APIキー
 
 app = Flask(__name__)
 
@@ -23,7 +17,7 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 @app.route("/")
 def home():
-    return "LINE Bot with ChatGPT API (openai>=1.0.0) is running!"
+    return "LINE Bot is running!"
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -41,23 +35,32 @@ def callback():
 def handle_message(event):
     user_message = event.message.text
 
-    # ChatGPT API (openai>=1.0.0の新しい書き方)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "あなたは親切なアシスタントです。"},
-            {"role": "user", "content": user_message}
-        ]
-    )
-
-    # ChatGPTの回答取得
-    reply_text = response.choices[0].message.content.strip()
+    # OpenRouter APIを使ってChatGPT風の返信を取得
+    response_text = get_openrouter_response(user_message)
 
     # LINEに返信
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=reply_text)
+        TextSendMessage(text=response_text)
     )
+
+def get_openrouter_response(user_input):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "openai/gpt-3.5-turbo",  # 例: OpenRouterで使えるモデル
+        "messages": [{"role": "user", "content": user_input}]
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code == 200:
+        return response.json()['choices'][0]['message']['content']
+    else:
+        return f"エラー: {response.status_code} - {response.text}"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
