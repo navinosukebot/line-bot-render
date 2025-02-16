@@ -52,7 +52,10 @@ def get_openrouter_response(user_input):
     }
     payload = {
         "model": "openai/gpt-3.5-turbo",  # 例: OpenRouterで使えるモデル
-        "messages": [{"role": "user", "content": user_input}]
+        "messages": [
+        {"role": "system", "content": "あなたは親しみやすく、フレンドリーな大阪弁で話すAIアシスタントです。"},
+        {"role": "user", "content": user_input}
+        ]
     }
 
     response = requests.post(url, headers=headers, json=payload)
