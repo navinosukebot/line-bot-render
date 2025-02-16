@@ -4,8 +4,8 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 
 # 環境変数からLINEアクセストークンとシークレットを取得
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv('Q+fwRUNoHpc7NxqtACEkT31eaizekSTLwAT6pkILE54wZ4Au0qpQ20X/Xtzu7WTXfc3D0iKQL9qGaevGKtUbFhFm9bj4/nK4r3MAuNl9ZZkQs/qLnyYfi74s9kViWnggl9ZG0UK7o2ZMTujYVwjrFQdB04t89/1O/w1cDnyilFU=')
-LINE_CHANNEL_SECRET = os.getenv('3e64c1979a3172a0175b5859f46372ce')
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
+LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRETe')
 
 print(f"LINE_CHANNEL_ACCESS_TOKEN: {LINE_CHANNEL_ACCESS_TOKEN}")
 print(f"LINE_CHANNEL_SECRET: {LINE_CHANNEL_SECRET}")
