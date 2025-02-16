@@ -3,7 +3,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-import openai
+from openai import OpenAI
 
 # 環境変数からLINEアクセストークン、シークレット、OpenAI APIキーを取得
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
@@ -14,7 +14,7 @@ print(f"LINE_CHANNEL_ACCESS_TOKEN: {LINE_CHANNEL_ACCESS_TOKEN}")
 print(f"LINE_CHANNEL_SECRET: {LINE_CHANNEL_SECRET}")
 print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
 
@@ -23,7 +23,7 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 @app.route("/")
 def home():
-    return "LINE Bot is running with ChatGPT!"
+    return "LINE Bot with ChatGPT API (openai>=1.0.0) is running!"
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -41,8 +41,8 @@ def callback():
 def handle_message(event):
     user_message = event.message.text
 
-    # ChatGPT APIにリクエスト
-    response = openai.ChatCompletion.create(
+    # ChatGPT API (openai>=1.0.0の新しい書き方)
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "あなたは親切なアシスタントです。"},
@@ -51,7 +51,7 @@ def handle_message(event):
     )
 
     # ChatGPTの回答取得
-    reply_text = response['choices'][0]['message']['content'].strip()
+    reply_text = response.choices[0].message.content.strip()
 
     # LINEに返信
     line_bot_api.reply_message(
