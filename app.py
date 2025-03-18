@@ -5,10 +5,10 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
 
-# 環境変数からLINEアクセストークンとシークレットを取得
+# 環境変数からLINEアクセストークンとシークレット、OpenRouter APIキーを取得
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
 LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
-OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')  # OpenRouter APIキー
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')  # OpenRouterのAPIキー
 
 app = Flask(__name__)
 
@@ -45,16 +45,16 @@ def handle_message(event):
     )
 
 def get_openrouter_response(user_input):
-    url = "https://openrouter.ai/api/v1/chat/completions"
+    url = "https://openrouter.ai/api/v1/chat/completions"  # OpenRouterのエンドポイント
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "openai/gpt-3.5-turbo",  # 例: OpenRouterで使えるモデル
+        "model": "openai/gpt-3.5-turbo",  # OpenRouterで使えるモデル例
         "messages": [
-        {"role": "system", "content": "あなたは親しみやすく、フレンドリーな大阪弁で話すAIアシスタントです。"},
-        {"role": "user", "content": user_input}
+            {"role": "system", "content": "あなたは親しみやすく、フレンドリーな大阪弁で話すAIアシスタントです。"},
+            {"role": "user", "content": user_input}
         ]
     }
 
