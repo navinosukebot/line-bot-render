@@ -5,10 +5,10 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
 
-# 環境変数からLINEアクセストークンとシークレット、OpenAI APIキーを取得
+# 環境変数からLINEアクセストークンとシークレットを取得
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
 LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # ChatGPT TeamプランのAPIキー
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')  # OpenRouter APIキー
 
 app = Flask(__name__)
 
@@ -35,8 +35,8 @@ def callback():
 def handle_message(event):
     user_message = event.message.text
 
-    # OpenAI APIを使ってChatGPT風の返信を取得
-    response_text = get_openai_response(user_message)
+    # OpenRouter APIを使ってChatGPT風の返信を取得
+    response_text = get_openrouter_response(user_message)
 
     # LINEに返信
     line_bot_api.reply_message(
@@ -44,17 +44,17 @@ def handle_message(event):
         TextSendMessage(text=response_text)
     )
 
-def get_openai_response(user_input):
-    url = "https://api.openai.com/v1/chat/completions"  # OpenAIのエンドポイントに変更
+def get_openrouter_response(user_input):
+    url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "gpt-4",  # Teamプランで使えるモデル（必要に応じて「gpt-3.5-turbo」などに変更）
+        "model": "openai/gpt-3.5-turbo",  # 例: OpenRouterで使えるモデル
         "messages": [
-            {"role": "system", "content": "あなたは親しみやすく、フレンドリーな大阪弁で話すAIアシスタントです。"},
-            {"role": "user", "content": user_input}
+        {"role": "system", "content": "あなたは親しみやすく、フレンドリーな大阪弁で話すAIアシスタントです。"},
+        {"role": "user", "content": user_input}
         ]
     }
 
